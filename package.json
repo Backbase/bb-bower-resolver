@@ -1,6 +1,6 @@
 {
   "name": "bb-bower-resolver",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Backbase Launchpad resolver for bower",
   "main": "src/index.js",
   "keywords": [
@@ -21,6 +21,7 @@
     "lodash": "^3.10.1",
     "q": "^1.4.1",
     "request": "^2.62.0",
+    "semver": "^5.0.3",
     "shelljs": "^0.5.3",
     "tmp": "0.0.27"
   }
