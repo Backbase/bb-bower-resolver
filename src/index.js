@@ -58,14 +58,16 @@ function init() {
     if (initPromise) return initPromise;
     // init just once
     var defer = Q.defer();
-    if (bowerConfig.registry.search[0] !== 'https://bower.herokuapp.com') {
+    var registry = bowerConfig.registry.search[0];
+    if (registry !== 'https://bower.herokuapp.com') {
         // if registry is working skip
-        var finalUrl = url.resolve(bowerConfig.registry.search[0], '/packages/base');
-        request.get(finalUrl, function(err, res) {
+        var finalUrl = url.resolve(registry, '/packages/base');
+        request.get(finalUrl, {timeout: 500}, function(err, res) {
             if (!err && res.statusCode === 200) {
                 defer.resolve('skip');
-                log('Using registry ' + bowerConfig.registry.search[0]);
+                log('Registry ' + chalk.gray(registry) + ' available. Skipping...');
             } else {
+                log('Registry ' + chalk.gray(registry) + ' not available.');
                 defer.resolve(getArtifactoryType());
             }
         });

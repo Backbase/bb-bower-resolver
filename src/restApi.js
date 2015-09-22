@@ -28,6 +28,7 @@ exports.test = function() {
     var defer = Q.defer();
     var cpath = '/api/storage/' + repoConfig.repoPath + 'lpm/foundation-base';
     finalUrl = url.resolve(repoConfig.url, cpath);
+    console.log('Testing ' + chalk.gray(finalUrl));
 
     request
     .get(finalUrl, {

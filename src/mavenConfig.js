@@ -35,13 +35,14 @@ try {
 }
 
 var jx = jxon.stringToJs(settings).settings;
+console.log(jx);
 
 if (!_.isArray(jx.profiles.profile)) jx.profiles.profile = [jx.profiles.profile];
 
 jx.profiles.profile.forEach(function(profile) {
     var repo;
     if (repo = _.get(profile, 'repositories.repository')) {
-        if (!(repo instanceof Array)) repo = [repo];
+        if (!_.isArray(repo)) repo = [repo];
         repo.forEach(function(v) {
             exports[v.id] = {url: v.url};
         });
