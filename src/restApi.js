@@ -16,6 +16,7 @@ if (!bbConfig.repoId) throw new Error('repoId property needs to be defined in ba
 if (!bbConfig.repoPath) throw new Error('repoPath property needs to be defined in backbase object of .bowerrc file');
 
 var repoConfig = mavenConfig[bbConfig.repoId];
+if (!repoConfig) throw new Error('Repository ID: \'' + bbConfig.repoId + '\' was not found in your Maven settings file');
 
 for (var k in bbConfig) repoConfig[k] = bbConfig[k];
 var urc = url.parse(repoConfig.url);

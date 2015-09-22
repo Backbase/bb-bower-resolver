@@ -48,21 +48,9 @@ jx.profiles.profile.forEach(function(profile) {
     }
 });
 
+if (!_.isArray(jx.servers.server)) jx.servers.server = [jx.servers.server];
+
 jx.servers.server.forEach(function(v) {
     exports[v.id].username = v.username;
     exports[v.id].password = v.password;
 });
-
-
-// try {
-//     var secure = fs.readFileSync(path.join(homeDir, '.m2/settings-security.xml')).toString();
-//     jx = jxon.stringToJs(secure).settingsSecurity;
-//     var master = jx.master;
-//     var crypto = require('crypto');
-//     console.log(crypto.getHashes());
-//     var enpass = exports['artifacts.backbase.com'].password.toString('binary');
-//     var pass = crypto.pbkdf2Sync(enpass, master, 1000, 512, 'sha256');
-//     console.log('>', pass.toString());
-// } catch(err) {
-//     console.log(err);
-// }
