@@ -35,7 +35,6 @@ try {
 }
 
 var jx = jxon.stringToJs(settings).settings;
-console.log(jx);
 
 if (!_.isArray(jx.profiles.profile)) jx.profiles.profile = [jx.profiles.profile];
 
