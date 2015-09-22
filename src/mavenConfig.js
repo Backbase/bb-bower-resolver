@@ -36,6 +36,8 @@ try {
 
 var jx = jxon.stringToJs(settings).settings;
 
+if (!_.isArray(jx.profiles.profile)) jx.profiles.profile = [jx.profiles.profile];
+
 jx.profiles.profile.forEach(function(profile) {
     var repo;
     if (repo = _.get(profile, 'repositories.repository')) {

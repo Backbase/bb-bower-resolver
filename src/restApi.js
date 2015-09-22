@@ -9,9 +9,15 @@ var url = require('url');
 var DecompressZip = require('decompress-zip');
 var mavenConfig = require('./mavenConfig');
 var bowerConfig = require('bower-config').read();
-var repoConfig = mavenConfig[bowerConfig.backbase.repoId];
+var bbConfig = bowerConfig.backbase;
 
-for (var k in bowerConfig.backbase) repoConfig[k] = bowerConfig.backbase[k];
+if (!bbConfig) throw new Error('backbase object needs to be defined in .bowerrc file');
+if (!bbConfig.repoId) throw new Error('repoId property needs to be defined in backbase object of .bowerrc file');
+if (!bbConfig.repoPath) throw new Error('repoPath property needs to be defined in backbase object of .bowerrc file');
+
+var repoConfig = mavenConfig[bbConfig.repoId];
+
+for (var k in bbConfig) repoConfig[k] = bbConfig[k];
 var urc = url.parse(repoConfig.url);
 var finalUrl = urc.protocol + '//' + urc.host;
 if (urc.port) finalUrl += ':' + urc.port;
@@ -44,19 +50,17 @@ exports.test = function() {
 }
 
 exports.getVersions = function(source) {
-    var cfg = repoConfig;
     var src = lpName.resolve(source);
-    var cpath = 'api/storage/' + cfg.repoPath + src.project;
-    // backbase-development-staged-release
-    finalUrl = url.resolve(cfg.url, path.join(cpath, src.name));
+    var cpath = 'api/storage/' + repoConfig.repoPath + src.project;
+    finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name));
 
     var defer = Q.defer();
     request({
         method: 'get',
         url: finalUrl,
         auth: {
-            username: cfg.username,
-            password: cfg.password
+            username: repoConfig.username,
+            password: repoConfig.password
         }
     }, function(err, res, body) {
         if (err) defer.reject(err);
@@ -81,24 +85,22 @@ exports.getVersions = function(source) {
     });
 
     return defer.promise;
-}
+};
 
 exports.download = function(source, version) {
     var tmpDir = tmp.dirSync().name;
-    var cfg = repoConfig;
     var src = lpName.resolve(source);
-    var cpath = cfg.repoPath + src.project;
-    // backbase-development-staged-release
+    var cpath = repoConfig.repoPath + src.project;
     var file = src.name + '-' + version + '.zip';
-    finalUrl = url.resolve(cfg.url, path.join(cpath, src.name, version, file));
+    finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name, version, file));
     var destFile = path.join(tmpDir, file);
 
     var defer = Q.defer();
     request
     .get(finalUrl, {
         auth: {
-            username: cfg.username,
-            password: cfg.password
+            username: repoConfig.username,
+            password: repoConfig.password
         },
         gzip: true
     })
@@ -129,5 +131,5 @@ exports.download = function(source, version) {
         })
     );
     return defer.promise;
-    // https://artifacts.backbase.com/backbase-development-internal-releases/com/backbase/launchpad/components/lpw-widget-accounts/2.1.0/lpw-widget-accounts-2.1.0.zip
-}
+};
+

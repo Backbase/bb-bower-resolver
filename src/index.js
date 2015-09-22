@@ -6,11 +6,10 @@ var bowerConfig = require('bower-config').read();
 var request = require('request');
 var url = require('url');
 var restApi = require('./restApi');
-var mavenCli = require('./mavenCli');
+var semver = require('semver');
 
 var initPromise;
 var resolverType; // defined after init();
-var srcs = [];
 
 module.exports = function resolver (bower) {
 
@@ -26,18 +25,18 @@ module.exports = function resolver (bower) {
 
     releases: function (source) {
         return resolverType.getVersions(source);
-        // return getFakeVersions(source);
     },
 
     fetch: function (endpoint, cached) {
-        // if (cached && cached.version) {
-        //     console.log('resolve cached...');
-        //     return;
-        // }
+        if (cached && cached.version) {
+            return;
+        }
+        if (!semver.valid(endpoint.target)) {
+            log(endpoint.target + ' is not valid semver for component \'' + endpoint.source + '\'');
+            throw new Error();
+        }
         return resolverType.download(endpoint.source, endpoint.target)
-        // return getFromMaven(endpoint.source, endpoint.target)
         .then(function(dir) {
-            // console.log(endpoint.source, 'finished');
             return {
                 tempPath: dir,
                 removeIgnores: true
@@ -55,7 +54,6 @@ module.exports = function resolver (bower) {
 // if registry is defined, check if it is available and use it if it is
 // otherwise get credentials from maven and
 // if password is not encrypted, get deps from artifactory via rest api
-// otherwise use maven cli to retrieve deps
 function init() {
     if (initPromise) return initPromise;
     // init just once
@@ -98,28 +96,3 @@ function getArtifactoryType() {
 function log(str) {
     console.log(chalk.yellow('Backbase resolver:'), str);
 }
-
-
-
-var vcache;
-function getFakeVersions() {
-    if (vcache) return vcache;
-    var out = [];
-    var v;
-    for (var i = 0; i <= 6; i++) {
-        for (var j = 0; j <= 20; j++) {
-            for (var k = 0; k <= 20; k++) {
-                v = i + '.' + j + '.' + k;
-                out.push({
-                    target: v,
-                    version: v
-                });
-            }
-        }
-    }
-    vcache = out;
-    return out;
-}
-
-
-
