@@ -1,0 +1,27 @@
+{
+  "name": "bb-bower-resolver",
+  "version": "0.1.0",
+  "description": "Backbase Launchpad resolver for bower",
+  "main": "src/index.js",
+  "keywords": [
+    "bower-resolver"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Backbase/bb-bower-resolver.git"
+  },
+  "author": "Igor Dimitrijevic <igor@backbase.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bower-config": "^0.6.1",
+    "chalk": "^1.1.1",
+    "decompress-zip": "^0.2.0",
+    "fs-extra-promise": "^0.2.1",
+    "jxon": "^1.5.4",
+    "lodash": "^3.10.1",
+    "q": "^1.4.1",
+    "request": "^2.62.0",
+    "shelljs": "^0.5.3",
+    "tmp": "0.0.27"
+  }
+}
