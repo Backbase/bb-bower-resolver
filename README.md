@@ -29,12 +29,12 @@ Add `bb-bower-resolver` to resolver list in [.bowerrc](http://bower.io/docs/conf
   ]
 ```
 
-Add Backbase specific properties to `.bowerrc` also:
+In case that you need to change default settings(shown below), add Backbase specific properties to `.bowerrc` file:
 
 ```
 ...
   "backbase": {
-    "repoId": "artifacts.backbase.com",
+    "url": "https://repo.backbase.com",
     "repoPath": "backbase-development-internal-releases/com/backbase/launchpad/components/"
   }
 ```
