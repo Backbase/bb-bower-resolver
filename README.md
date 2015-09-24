@@ -15,11 +15,11 @@ You can install it either globally:
 npm install --global bb-bower-resolver
 ```
 
-or add it as `devDependency` to your `package.json` file
+or add it as a `devDependency` to your `package.json` file.
 
 #### Usage
 
-Add `bb-bower-resolver` to resolver list in [.bowerrc](http://bower.io/docs/config/)
+Add `bb-bower-resolver` to the resolver list in [.bowerrc](http://bower.io/docs/config/)
 
 ```
 ...
@@ -29,7 +29,7 @@ Add `bb-bower-resolver` to resolver list in [.bowerrc](http://bower.io/docs/conf
   ]
 ```
 
-In case that you need to change default settings(shown below), add Backbase specific properties to `.bowerrc` file:
+If you need to change default settings (shown below), add Backbase specific properties to the `.bowerrc` file:
 
 ```
 ...
@@ -40,4 +40,4 @@ In case that you need to change default settings(shown below), add Backbase spec
 ```
 
 Optional backbase properties are `username` and `password`. 
-In case that you are using maven password encryption, you will need to specify your decrypted password for resolver to work.
+If you are using maven password encryption, you will need to specify your decrypted password for the resolver to work.
