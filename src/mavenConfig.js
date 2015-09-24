@@ -1,5 +1,5 @@
 /* global require */
-var homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+var homeDir = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
 var path = require('path');
 var fs = require('fs-extra-promise');
 var jxon = require('jxon');

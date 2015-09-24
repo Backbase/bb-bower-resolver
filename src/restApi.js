@@ -3,26 +3,46 @@ var lpName = require('./lpNameResolver');
 var request = require('request');
 var tmp = require('tmp');
 var Q = require('q');
+var _ = require('lodash');
 var fs = require('fs-extra-promise');
 var chalk = require('chalk');
 var url = require('url');
 var DecompressZip = require('decompress-zip');
 var mavenConfig = require('./mavenConfig');
 var bowerConfig = require('bower-config').read();
-var bbConfig = bowerConfig.backbase;
 
-if (!bbConfig) throw new Error('backbase object needs to be defined in .bowerrc file');
-if (!bbConfig.repoId) throw new Error('repoId property needs to be defined in backbase object of .bowerrc file');
-if (!bbConfig.repoPath) throw new Error('repoPath property needs to be defined in backbase object of .bowerrc file');
+var repoConfig = getRepoConfig();
 
-var repoConfig = mavenConfig[bbConfig.repoId];
-if (!repoConfig) throw new Error('Repository ID: \'' + bbConfig.repoId + '\' was not found in your Maven settings file');
+function getRepoConfig() {
 
-for (var k in bbConfig) repoConfig[k] = bbConfig[k];
-var urc = url.parse(repoConfig.url);
-var finalUrl = urc.protocol + '//' + urc.host;
-if (urc.port) finalUrl += ':' + urc.port;
-repoConfig.url = finalUrl;
+    var cfg;
+
+    _.each(mavenConfig, function(v, k) {
+        var parsedUrl = url.parse(v.url);
+        if (parsedUrl.host === 'repo.backbase.com') {
+            v.url = 'https://repo.backbase.com';
+            cfg = v;
+            return false;
+        }
+    });
+
+    cfg = cfg || {};
+    var bbConfig = bowerConfig.backbase;
+    if (bbConfig) _.assign(cfg, bbConfig);
+
+    if (!cfg.username || !cfg.password) {
+        throw new Error('Error while getting artifactory configuration. No credentials for repo.backbase.com were found');
+    }
+
+    if (/(\{.*\})/.test(cfg.password)) {
+        throw new Error('Encrypted passwords are not supported. Define your password in .bowerrc backbase object.');
+    }
+
+    cfg.url = cfg.url || 'https://repo.backbase.com';
+    cfg.repoPath = cfg.repoPath || 'backbase-development-staged-release/com/backbase/launchpad/components/';
+
+    return cfg;
+}
 
 exports.test = function() {
     var defer = Q.defer();
@@ -54,7 +74,7 @@ exports.test = function() {
 exports.getVersions = function(source) {
     var src = lpName.resolve(source);
     var cpath = 'api/storage/' + repoConfig.repoPath + src.project;
-    finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name));
+    var finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name));
 
     var defer = Q.defer();
     request({
@@ -65,8 +85,10 @@ exports.getVersions = function(source) {
             password: repoConfig.password
         }
     }, function(err, res, body) {
-        if (err) defer.reject(err);
-        else {
+        if (err) {
+            console.log('Error getting versions', chalk.gray(finalUrl));
+            defer.reject(err);
+        } else {
             if (res.statusCode === 404) {
                 console.log(chalk.red(404 + ' ' + res.statusMessage), chalk.yellow(source));
                 defer.reject(url);
@@ -94,7 +116,7 @@ exports.download = function(source, version) {
     var src = lpName.resolve(source);
     var cpath = repoConfig.repoPath + src.project;
     var file = src.name + '-' + version + '.zip';
-    finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name, version, file));
+    var finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name, version, file));
     var destFile = path.join(tmpDir, file);
 
     var defer = Q.defer();
@@ -107,7 +129,7 @@ exports.download = function(source, version) {
         gzip: true
     })
     .on('error', function(err) {
-        console.log(url);
+        console.log('Error getting artifact', chalk.gray(finalUrl));
         defer.reject(err);
     })
     .on('response', function(res) {
