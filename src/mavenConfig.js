@@ -51,6 +51,8 @@ jx.profiles.profile.forEach(function(profile) {
 if (!_.isArray(jx.servers.server)) jx.servers.server = [jx.servers.server];
 
 jx.servers.server.forEach(function(v) {
-    exports[v.id].username = v.username;
-    exports[v.id].password = v.password;
+    if (exports[v.id] && v.username && v.password) {
+        exports[v.id].username = v.username;
+        exports[v.id].password = v.password;
+    }
 });
