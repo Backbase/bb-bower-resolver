@@ -6,7 +6,6 @@ var bowerConfig = require('bower-config').read();
 var request = require('request');
 var url = require('url');
 var semver = require('semver');
-var restApi = require('./restApi');
 
 var defer = Q.defer();
 var resolverType;
@@ -78,6 +77,7 @@ module.exports = function resolver (bower) {
 
 
 function getArtifactoryType() {
+    var restApi = require('./restApi');
     return restApi.test()
     .then(function() {
         log('Using Artifactory API');
