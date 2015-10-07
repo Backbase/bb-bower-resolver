@@ -44,8 +44,12 @@ function getRepoConfig() {
     return cfg;
 }
 
-exports.test = function() {
+exports.test = function(testArtifacts) {
     var defer = Q.defer();
+    if (testArtifacts) {
+        repoConfig.url = 'https://artifacts.backbase.com';
+        repoConfig.repoPath = 'backbase-development-internal-releases/com/backbase/launchpad/components/';
+    }
     var cpath = '/api/storage/' + repoConfig.repoPath + 'lpm/foundation-base';
     finalUrl = url.resolve(repoConfig.url, cpath);
     console.log('Testing ' + chalk.gray(finalUrl));
@@ -58,18 +62,19 @@ exports.test = function() {
         }
     })
     .on('error', function(err) {
-        defer.reject();
+        if (testArtifacts) defer.reject();
+        else defer.resolve(exports.test(true));
     })
     .on('response', function(res) {
         if (res.statusCode === 200) {
             defer.resolve();
         } else {
-            defer.reject();
+            if (testArtifacts) defer.reject();
+            else defer.resolve(exports.test(true));
         }
     });
     return defer.promise;
-
-}
+};
 
 exports.getVersions = function(source) {
     var src = lpName.resolve(source);
