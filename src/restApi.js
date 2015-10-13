@@ -17,7 +17,7 @@ function getRepoConfig() {
 
     var cfg;
 
-    _.each(mavenConfig, function(v, k) {
+    _.each(mavenConfig.servers, function(v, k) {
         var parsedUrl = url.parse(v.url);
         if (parsedUrl.host === 'repo.backbase.com') {
             v.url = 'https://repo.backbase.com';
@@ -41,8 +41,25 @@ function getRepoConfig() {
     cfg.url = cfg.url || 'https://repo.backbase.com';
     cfg.repoPath = cfg.repoPath || 'backbase-development-staged-release/com/backbase/launchpad/components/';
 
+    if (mavenConfig.proxies) {
+        if (bbConfig && bbConfig.proxyId) cfg.proxy = mavenConfig.proxies[bbConfig.proxyId];
+        else {
+            cfg.proxy = mavenConfig.proxies[_.keys(mavenConfig.proxies)[0]];
+        }
+    }
+    if (bbConfig && bbConfig.proxy) cfg.proxy = bbConfig.proxy;
+
     return cfg;
 }
+
+var reqObj = {
+    method: 'get',
+    auth: {
+        username: repoConfig.username,
+        password: repoConfig.password
+    }
+};
+if (repoConfig.proxy) reqObj.proxy = repoConfig.proxy;
 
 exports.test = function(testArtifacts) {
     var defer = Q.defer();
@@ -51,16 +68,10 @@ exports.test = function(testArtifacts) {
         repoConfig.repoPath = 'backbase-development-internal-releases/com/backbase/launchpad/components/';
     }
     var cpath = '/api/storage/' + repoConfig.repoPath + 'lpm/foundation-base';
-    finalUrl = url.resolve(repoConfig.url, cpath);
+    var finalUrl = url.resolve(repoConfig.url, cpath);
     console.log('Testing ' + chalk.gray(finalUrl));
 
-    request
-    .get(finalUrl, {
-        auth: {
-            username: repoConfig.username,
-            password: repoConfig.password
-        }
-    })
+    request(_.assign({url: finalUrl}, reqObj))
     .on('error', function(err) {
         if (testArtifacts) defer.reject();
         else defer.resolve(exports.test(true));
@@ -82,14 +93,8 @@ exports.getVersions = function(source) {
     var finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name));
 
     var defer = Q.defer();
-    request({
-        method: 'get',
-        url: finalUrl,
-        auth: {
-            username: repoConfig.username,
-            password: repoConfig.password
-        }
-    }, function(err, res, body) {
+    request(_.assign({url: finalUrl}, reqObj),
+    function(err, res, body) {
         if (err) {
             console.log('Error getting versions', chalk.gray(finalUrl));
             defer.reject(err);
@@ -125,14 +130,7 @@ exports.download = function(source, version) {
     var destFile = path.join(tmpDir, file);
 
     var defer = Q.defer();
-    request
-    .get(finalUrl, {
-        auth: {
-            username: repoConfig.username,
-            password: repoConfig.password
-        },
-        gzip: true
-    })
+    request(_.assign({url: finalUrl, gzip: true}, reqObj))
     .on('error', function(err) {
         console.log('Error getting artifact', chalk.gray(finalUrl));
         defer.reject(err);

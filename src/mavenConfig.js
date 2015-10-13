@@ -34,6 +34,8 @@ try {
     }
 }
 
+exports.servers = {};
+
 var jx = jxon.stringToJs(settings).settings;
 
 if (!_.isArray(jx.profiles.profile)) jx.profiles.profile = [jx.profiles.profile];
@@ -43,7 +45,7 @@ jx.profiles.profile.forEach(function(profile) {
     if (repo = _.get(profile, 'repositories.repository')) {
         if (!_.isArray(repo)) repo = [repo];
         repo.forEach(function(v) {
-            exports[v.id] = {url: v.url};
+            exports.servers[v.id] = {url: v.url};
         });
     }
 });
@@ -51,8 +53,21 @@ jx.profiles.profile.forEach(function(profile) {
 if (!_.isArray(jx.servers.server)) jx.servers.server = [jx.servers.server];
 
 jx.servers.server.forEach(function(v) {
-    if (exports[v.id] && v.username && v.password) {
-        exports[v.id].username = v.username;
-        exports[v.id].password = v.password;
+    if (exports.servers[v.id] && v.username && v.password) {
+        exports.servers[v.id].username = v.username;
+        exports.servers[v.id].password = v.password;
     }
 });
+
+if (jx.proxies && jx.proxies.proxy) {
+    if (!_.isArray(jx.proxies.proxy)) jx.proxies.proxy = [jx.proxies.proxy];
+    exports.proxies = {};
+    var proxy;
+    jx.proxies.proxy.forEach(function(p) {
+        proxy = p.protocol + '://';
+        if (p.username && p.password) proxy += p.username + ':' + p.password + '@';
+        proxy += p.host;
+        if (p.port) proxy += ':' + p.port;
+        exports.proxies[p.id] = proxy;
+    });
+}

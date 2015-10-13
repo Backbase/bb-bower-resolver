@@ -1,6 +1,6 @@
 {
   "name": "bb-bower-resolver",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Backbase Launchpad resolver for bower",
   "main": "src/index.js",
   "keywords": [
