@@ -65,7 +65,7 @@ if (jx.proxies && jx.proxies.proxy) {
     var proxy;
     jx.proxies.proxy.forEach(function(p) {
         proxy = p.protocol + '://';
-        if (p.username && p.password) proxy += p.username + ':' + p.password + '@';
+        if (p.username && p.password) proxy += encodeURIComponent(p.username) + ':' + encodeURIComponent(p.password) + '@';
         proxy += p.host;
         if (p.port) proxy += ':' + p.port;
         exports.proxies[p.id] = proxy;
