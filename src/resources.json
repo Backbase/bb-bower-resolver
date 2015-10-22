@@ -1,0 +1,50 @@
+{
+	"check": {
+		"defaults": {
+			"startsWith": [
+				"widget-",
+				"module-",
+				"container-",
+				"page-",
+				"template-",
+				"collection-",
+				"cxp-"
+			],
+			"fullName": [
+				"base",
+				"core",
+				"ui",
+				"config",
+				"theme",
+				"theme-default",
+				"theme-breeze",
+				"chrome-templates",
+				"content-templates"
+			]
+		},
+		"collection-cxp-universal": {
+			"startsWith": [
+				"cxp-"
+			],
+			"fullName": [
+				"collection-cxp-universal"
+			]
+		}
+	},
+	"resolve": {
+		"cxp-widgets": {
+			"startsWith": [
+				"cxp-widget-"
+			],
+			"project": "widgets",
+			"repoPath": "backbase-development-rc-releases/com/backbase/universal/"
+		},
+		"cxp-containers": {
+			"startsWith": [
+				"cxp-container-"
+			],
+			"project": "containers",
+			"repoPath": "backbase-development-rc-releases/com/backbase/universal/"
+		}
+	}
+}

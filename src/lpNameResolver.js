@@ -1,39 +1,30 @@
-var startsWith = [
-    'widget-',
-    'module-',
-    'container-',
-    'page-',
-    'template-',
-    'collection-'
-];
-var fullName = [
-    'base',
-    'core',
-    'ui',
-    'config',
-    'theme',
-    'theme-default',
-    'theme-breeze',
-    'chrome-templates',
-    'content-templates'
-];
+var resources = require('./resources.json');
+var _ = require('lodash');
 
-exports.check = function(source) {
-    for (var i = 0; i < startsWith.length; i++) {
-        if (source.indexOf(startsWith[i]) === 0) {
-            //console.log(src);
-            return true;
-        }
-    }
-    if (fullName.indexOf(source) !== -1) {
-        //console.log(src);
-        return true;
-    }
-    // console.log(src);
-    return false;
+exports.check = function (source, config) {
+    return _.find(config || resources.check, function (config) {
+        return !!~config.fullName.indexOf(source) || new RegExp('^' + config.startsWith.join('|')).test(source);
+    });
 }
 
-exports.resolve = function(source) {
+exports.resolve = function (source) {
+    var predefined;
+
+    _.find(resources.resolve, function (config) {
+        var startsWithRegExp = new RegExp('^' + config.startsWith.join('|'));
+        if (startsWithRegExp.test(source)) {
+            predefined = {
+                name: source.replace(startsWithRegExp, ''),
+                project: config.project,
+                repoPath: config.repoPath
+            };
+        }
+    });
+
+    if (predefined) {
+        return predefined;
+    }
+
     if (source.indexOf('widget-') === 0) {
         return {
             project: 'lpw',
