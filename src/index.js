@@ -6,7 +6,10 @@ var bowerConfig = require('bower-config').read();
 var request = require('request');
 var url = require('url');
 var semver = require('semver');
+var _ = require('lodash');
 
+var customResourcesCheck = _.extend({}, require('./resources.json').check);
+delete customResourcesCheck.defaults;
 var defer = Q.defer();
 var resolverType;
 
@@ -39,12 +42,12 @@ module.exports = function resolver (bower) {
   return {
 
     match: function (source) {
-        return defer.promise
-        .then(function(type) {
-            resolverType = type;
-            if (resolverType === 'skip') return false;
-            return lpName.check(source);
-        });
+        return Q.when(lpName.check(source, customResourcesCheck) ? getArtifactoryType() : defer.promise)
+            .then(function(type) {
+                resolverType = type;
+                if (resolverType === 'skip') return false;
+                return !!lpName.check(source);
+            });
     },
 
     releases: function (source) {

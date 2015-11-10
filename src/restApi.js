@@ -12,6 +12,7 @@ var mavenConfig = require('./mavenConfig');
 var bowerConfig = require('bower-config').read();
 
 var repoConfig = getRepoConfig();
+var CUT_VERSION = '.0-cut.0';
 
 function getRepoConfig() {
 
@@ -89,7 +90,7 @@ exports.test = function(testArtifacts) {
 
 exports.getVersions = function(source) {
     var src = lpName.resolve(source);
-    var cpath = 'api/storage/' + repoConfig.repoPath + src.project;
+    var cpath = 'api/storage/' + (src.repoPath || repoConfig.repoPath) + src.project;
     var finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name));
 
     var defer = Q.defer();
@@ -108,6 +109,11 @@ exports.getVersions = function(source) {
                 var out = [];
                 body.children.forEach(function(v) {
                     v = v.uri.slice(1);
+                    // version 1.0 is not valid for semver
+                    if(/^\d\.\d$/.test(v)) {
+                        v += CUT_VERSION;
+                    }
+
                     out.push({
                         target: v,
                         version: v
@@ -122,9 +128,10 @@ exports.getVersions = function(source) {
 };
 
 exports.download = function(source, version) {
+    version = version.replace(CUT_VERSION, '');
     var tmpDir = tmp.dirSync().name;
     var src = lpName.resolve(source);
-    var cpath = repoConfig.repoPath + src.project;
+    var cpath = (src.repoPath || repoConfig.repoPath) + src.project;
     var file = src.name + '-' + version + '.zip';
     var finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name, version, file));
     var destFile = path.join(tmpDir, file);
