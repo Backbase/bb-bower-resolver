@@ -15,6 +15,7 @@
 				"core",
 				"ui",
 				"config",
+                                "mock",
 				"theme",
 				"theme-default",
 				"theme-breeze",
