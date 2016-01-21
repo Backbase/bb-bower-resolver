@@ -10,6 +10,7 @@ var url = require('url');
 var DecompressZip = require('decompress-zip');
 var mavenConfig = require('./mavenConfig');
 var bowerConfig = require('bower-config').read();
+var shell = require('shelljs');
 
 var repoConfig = getRepoConfig();
 var CUT_VERSION = '.0-cut.0';
@@ -125,6 +126,63 @@ exports.getVersions = function(source) {
     });
 
     return defer.promise;
+};
+
+function executeCommand(command, debug) {
+    return shell.exec(command, {"silent": !debug});
+}
+
+function downloadZipWithMvn(mvnCoordinates, repoURL, workingDir) {
+    return Q.fcall(function() {
+        console.log("Downloading artifact", mvnCoordinates, "...");
+        executeCommand([
+            "mvn dependency:get",
+                "-Dartifact=" + mvnCoordinates,
+                "-DrepoUrl=" + repoURL
+        ].join(' '));
+        return {"mvnCoordinates": mvnCoordinates, "workingDir": workingDir};
+    });
+}
+
+function unzipDependency(args) {
+    var destFolder = path.join(tmp.dirSync().name, args.mvnCoordinates.split(':')[1]);
+    console.log("Unzipping", args.mvnCoordinates, "...");
+    shell.cd(args.workingDir);
+    executeCommand([
+        "mvn dependency:unpack",
+            "-Dartifact=" + args.mvnCoordinates,
+            "-DoutputDirectory=" + destFolder
+    ].join(' '));
+    shell.cd('..');
+    return destFolder;
+}
+
+function createTmpEnv(folder) {
+    shell.mkdir(folder);
+}
+
+exports.downloadWithMaven = function(source, version) {
+
+    var temporaryFolder = 'tmp';
+    if(!fs.existsSync(temporaryFolder)) {
+        createTmpEnv(temporaryFolder)
+    }
+
+    version = version.replace(CUT_VERSION, '');
+    var tmpDir = tmp.dirSync().name;
+    var src = lpName.resolve(source);
+    var cpath = (src.repoPath || repoConfig.repoPath) + src.project;
+    var file = src.name + '-' + version + '.zip';
+    var finalUrl = url.resolve(repoConfig.url, path.join(cpath, src.name, version, file));
+    var destFile = path.join(tmpDir, file);
+
+    var repoPackage = ["com.backbase.launchpad.components", src.project].join('.');
+
+    return downloadZipWithMvn(
+        [repoPackage, src.name, version, "zip"].join(':'),
+        [repoConfig.url, 'repo', ''].join('/'),
+        temporaryFolder
+    ).then(unzipDependency);
 };
 
 exports.download = function(source, version) {
