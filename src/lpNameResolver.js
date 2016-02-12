@@ -3,7 +3,8 @@ var _ = require('lodash');
 
 exports.check = function (source, config) {
     return _.find(config || resources.check, function (config) {
-        return !!~config.fullName.indexOf(source) || new RegExp('^' + config.startsWith.join('|')).test(source);
+        var startsWithRegex = new RegExp('^(' + config.startsWith.join('|')+')');
+        return !!~config.fullName.indexOf(source) || startsWithRegex.test(source);
     });
 }
 
