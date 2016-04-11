@@ -8,7 +8,8 @@
 				"page-",
 				"template-",
 				"collection-",
-				"cxp-"
+				"cxp-",
+                                "content-structured-"
 			],
 			"fullName": [
 				"base",
@@ -20,7 +21,8 @@
 				"theme-default",
 				"theme-breeze",
 				"chrome-templates",
-				"content-templates"
+				"content-templates",
+                                "theme-retail"
 			]
 		},
 		"collection-cxp-universal": {
