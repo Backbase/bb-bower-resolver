@@ -48,7 +48,7 @@ exports.resolve = function (source) {
             name: source
         };
     }
-    if (['mock', 'ui', 'config', 'theme', 'theme-default', 'theme-breeze'].indexOf(source) !== -1) {
+    if (['mock', 'ui', 'config', 'theme', 'theme-default', 'theme-breeze', 'theme-retail'].indexOf(source) !== -1) {
         return {
             project: 'lpm',
             name: source
