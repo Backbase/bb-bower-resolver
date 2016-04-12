@@ -1,9 +1,14 @@
 var resources = require('./resources.json');
 var _ = require('lodash');
 
+function getStartsWithRegExp(startsWith) {
+    return new RegExp('^(' + startsWith.join('|')+')');
+}
+
 exports.check = function (source, config) {
     return _.find(config || resources.check, function (config) {
-        return !!~config.fullName.indexOf(source) || new RegExp('^' + config.startsWith.join('|')).test(source);
+        var startsWithRegExp = getStartsWithRegExp(config.startsWith);
+        return !!~config.fullName.indexOf(source) || startsWithRegExp.test(source);
     });
 }
 
@@ -11,7 +16,7 @@ exports.resolve = function (source) {
     var predefined;
 
     _.find(resources.resolve, function (config) {
-        var startsWithRegExp = new RegExp('^' + config.startsWith.join('|'));
+        var startsWithRegExp = getStartsWithRegExp(config.startsWith);
         if (startsWithRegExp.test(source)) {
             predefined = {
                 name: source.replace(startsWithRegExp, ''),
