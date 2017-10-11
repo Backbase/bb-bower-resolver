@@ -20,7 +20,7 @@ init();
 // if password is not encrypted, get deps from artifactory via rest api
 function init() {
     var registry = bowerConfig.registry.search[0];
-    if (registry !== 'https://bower.herokuapp.com') {
+    if (registry !== 'https://registry.bower.io') {
         // if registry is working skip
         var finalUrl = url.resolve(registry, '/packages/base');
         request.get(finalUrl, {timeout: 500}, function(err, res) {
