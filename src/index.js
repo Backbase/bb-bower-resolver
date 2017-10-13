@@ -15,12 +15,18 @@ var resolverType;
 
 init();
 
+function isCustomRegistry(url) {
+  if (url === 'https://registry.bower.io') return false;
+  if (url === 'https://bower.herokuapp.com') return false;
+  return true;
+}
+
 // if registry is defined, check if it is available and use it if it is
 // otherwise get credentials from maven and
 // if password is not encrypted, get deps from artifactory via rest api
 function init() {
     var registry = bowerConfig.registry.search[0];
-    if (registry !== 'https://registry.bower.io') {
+    if (isCustomRegistry(registry)) {
         // if registry is working skip
         var finalUrl = url.resolve(registry, '/packages/base');
         request.get(finalUrl, {timeout: 500}, function(err, res) {
