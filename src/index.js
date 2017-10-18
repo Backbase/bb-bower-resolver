@@ -68,7 +68,10 @@ module.exports = function resolver (bower) {
             log(endpoint.target + ' is not valid semver for component \'' + endpoint.source + '\'');
             throw new Error();
         }
-        return resolverType.download(endpoint.source, endpoint.target)
+
+        return (bowerConfig.useMaven
+            ? resolverType.downloadWithMaven(endpoint.source, endpoint.target)
+            : resolverType.download(endpoint.source, endpoint.target))
         .then(function(dir) {
             return {
                 tempPath: dir,
